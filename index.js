@@ -110,7 +110,7 @@ async function mainMenu() {
   ]);
 
   if (action === "exit") {
-    console.log(chalk.magenta("\n  Later! 🎵\n"));
+    console.log(chalk.magentaBright.italic("\n  later!, captain:) \n"));
     process.exit(0); // exit the app
   }
 
