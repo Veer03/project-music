@@ -39,12 +39,13 @@
 // // });
 
 // importing all the libraries we need
-import chalk from "chalk"; // colors in terminal
-import figlet from "figlet"; // ASCII art text
-import boxen from "boxen"; // boxes around text
-import inquirer from "inquirer"; // interactive menus
-import { downloadSong } from "./download.js"; // our real download logic
-
+import chalk from "chalk";
+import figlet from "figlet";
+import boxen from "boxen";
+import inquirer from "inquirer";
+import { downloadSong } from "./download.js"; // the real download logic
+import { ensureYtDlp } from "./setup.js";
+await ensureYtDlp();
 // ── LOGO ──────────────────────────────────────────────────
 // split "Welcome to" into individual rows so we can animate dots onto it
 const welcomeLines = figlet
@@ -90,7 +91,6 @@ const tagline = boxen(
   },
 );
 console.log(tagline);
-console.log();
 
 // ── MAIN MENU ─────────────────────────────────────────────
 // this function shows the main menu and handles what user picks
