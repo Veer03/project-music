@@ -39,11 +39,13 @@
 // // });
 
 // importing all the libraries we need
+import fs from "fs";
 import chalk from "chalk";
 import figlet from "figlet";
 import boxen from "boxen";
 import inquirer from "inquirer";
 import { downloadSong } from "./download.js"; // the real download logic
+import { getConfig, saveConfig } from "./config.js";
 import { ensureYtDlp } from "./setup.js";
 await ensureYtDlp();
 // ── LOGO ──────────────────────────────────────────────────
@@ -117,9 +119,48 @@ async function mainMenu() {
   // route to correct handler based on what user picked
   if (action === "song") await handleDownload();
   if (action === "playlist") await mainMenu(); // placeholder for now
-  if (action === "settings") await mainMenu(); // placeholder for now
+  if (action === "settings") await handleSettings();
 }
+//--handle settings----------------------------------------
+async function handleSettings() {
+  const { option } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "option",
+      message: chalk.cyan("Settings:"),
+      choices: [
+        { name: "📁  Change save location", value: "location" },
+        { name: "⬅️   Back", value: "back" },
+      ],
+    },
+  ]);
 
+  if (option === "back") {
+    await mainMenu();
+    return;
+  }
+
+  if (option === "location") {
+    const { outputDir } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "outputDir",
+        message: chalk.cyan("Enter new save location:"),
+        default: getConfig().outputDir,
+        validation: (input) => {
+          if (!fs.existsSync(input)) {
+            return chalk.red(`path does not exits: ${input}`);
+          }
+          return true;
+        },
+      },
+    ]);
+
+    saveConfig({ outputDir });
+    console.log(chalk.green(`\n  ✅ Saved to: ${outputDir}\n`));
+    await handleSettings(); // go back to settings after saving
+  }
+}
 // ── HANDLE DOWNLOAD ───────────────────────────────────────
 // asks user for song name then calls the real download function
 async function handleDownload() {

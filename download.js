@@ -3,6 +3,7 @@ import ffmpegPath from "ffmpeg-static";
 import cliProgress from "cli-progress";
 import chalk from "chalk";
 import ora from "ora";
+import { getConfig } from "./config.js";
 
 export async function downloadSong(song) {
   // spinner while searching
@@ -20,7 +21,9 @@ export async function downloadSong(song) {
       barIncompleteChar: "░",
       hideCursor: true,
     });
-
+    //
+    const { outputDir } = getConfig();
+    //
     let barStarted = false;
 
     const dl = spawn(".\\yt-dlp.exe", [
@@ -33,7 +36,7 @@ export async function downloadSong(song) {
       "--audio-quality",
       "0",
       "-o",
-      "./music/%(title)s.mp3",
+      `${outputDir}/%(title)s.mp3`,
       "--no-playlist",
       "--ffmpeg-location",
       ffmpegPath,
