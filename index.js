@@ -45,17 +45,47 @@ import ora from "ora";
 import inquirer from "inquirer";
 import cliProgress from "cli-progress";
 
-// ── LOGO ──────────────────────────────────────────────────
-const logo = figlet.textSync("Audiofy", { font: "Doom" });
-console.log(chalk.magenta(logo));
+// ── LOGO ─────────────────────────────────────
+// ─────────────
+// 1. Split "Welcome to" and a single dot into horizontal rows
+const welcomeLines = figlet
+  .textSync("Welcome to", { font: "Slant" })
+  .split("\n");
+const dotLines = figlet.textSync(" .", { font: "Slant" }).split("\n");
+
+// 2. Print the initial "Welcome to" text
+console.log(chalk.blue.bold(welcomeLines.join("\n")));
+
+// Keep track of the current text rows on screen
+let currentLines = [...welcomeLines];
+
+// 3. Type 3 dots one by one on the same line
+for (let i = 0; i < 3; i++) {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  // Stitch the new dot row horizontally onto the existing text row
+  currentLines = currentLines.map(
+    (line, index) => line + (dotLines[index] || ""),
+  );
+
+  // Move cursor back to the top of the block and clear down to redraw
+  process.stdout.moveCursor(0, -welcomeLines.length);
+  process.stdout.clearScreenDown();
+
+  // Print the updated text
+  console.log(chalk.blue.bold(currentLines.join("\n")));
+}
+
+const logo = figlet.textSync("  Audiofy  !", { font: "Larry 3D" });
+await new Promise((resolve) => setTimeout(resolve, 500)); // small delay for effect
+console.log(chalk.magenta.bold(logo));
 
 // ── TAGLINE ───────────────────────────────────────────────
 const tagline = boxen(
-  chalk.white("🎵  Your music. Your terminal. Your rules."),
+  chalk.white("  🎵  Your Audio. Your terminal. Your rules."),
   {
-    padding: 1,
+    padding: 0.7,
     margin: 0,
-    borderStyle: "round",
+    borderStyle: "arrow",
     borderColor: "magenta",
   },
 );
@@ -71,8 +101,7 @@ async function mainMenu() {
       message: chalk.cyan("What do you want to do?"),
       choices: [
         { name: "🎵  Download a song", value: "song" },
-        { name: "🎤  Download by artist", value: "artist" },
-        { name: "📋  Download a list", value: "list" },
+        { name: "📋  Download a playlist", value: "playlist" },
         { name: "⚙️   Settings", value: "settings" },
         { name: "❌  Exit", value: "exit" },
       ],
