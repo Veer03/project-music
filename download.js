@@ -5,12 +5,13 @@ import chalk from "chalk";
 import ora from "ora";
 import { getConfig } from "./config.js";
 
-export async function downloadSong(song) {
-  // spinner while searching
-  const spinner = ora({
-    text: chalk.yellow(`Searching for "${song}"...`),
-    color: "magenta",
-  }).start();
+export async function downloadSong(song, silent = false) {
+  const spinner = silent
+    ? null
+    : ora({
+        text: chalk.yellow(`Searching for "${song}"...`),
+        color: "magenta",
+      }).start();
 
   return new Promise((resolve, reject) => {
     const bar = new cliProgress.SingleBar({
@@ -46,8 +47,13 @@ export async function downloadSong(song) {
       const line = data.toString();
 
       // switch from spinner to progress bar on first download line
-      if (line.includes("[download]") && line.includes("%") && !barStarted) {
-        spinner.succeed(chalk.green(`Found: ${song}`));
+      if (
+        line.includes("[download]") &&
+        line.includes("%") &&
+        !barStarted &&
+        !silent
+      ) {
+        if (spinner) spinner.succeed(chalk.green(`Found: ${song}`));
         bar.start(100, 0);
         barStarted = true;
       }
@@ -63,14 +69,15 @@ export async function downloadSong(song) {
         bar.update(100);
         bar.stop();
       } else {
-        spinner.stop();
+        if (spinner) spinner.stop();
       }
 
       if (code === 0) {
-        console.log(chalk.green(`\n  ✅ Saved to music folder!\n`));
+        if (spinner)
+          console.log(chalk.green(`\n  ✅ Saved to music folder!\n`));
         resolve();
       } else {
-        console.log(chalk.red("\n  ❌ Failed!\n"));
+        if (spinner) console.log(chalk.red("\n  ❌ Failed!\n"));
         reject();
       }
     });
