@@ -46,9 +46,12 @@ import boxen from "boxen";
 import inquirer from "inquirer";
 import { downloadSong } from "./download.js"; // the real download logic
 import { getConfig, saveConfig } from "./config.js";
+import { downloadList, downloadYoutubePlaylist } from "./playlist.js";
 import { ensureYtDlp } from "./setup.js";
 await ensureYtDlp();
+
 // ── LOGO ──────────────────────────────────────────────────
+
 // split "Welcome to" into individual rows so we can animate dots onto it
 const welcomeLines = figlet
   .textSync("Welcome to", { font: "Slant" })
@@ -118,9 +121,10 @@ async function mainMenu() {
 
   // route to correct handler based on what user picked
   if (action === "song") await handleDownload();
-  if (action === "playlist") await mainMenu(); // placeholder for now
+  if (action === "playlist") await handlePlaylist();
   if (action === "settings") await handleSettings();
 }
+
 //--handle settings----------------------------------------
 async function handleSettings() {
   const { option } = await inquirer.prompt([
@@ -147,9 +151,9 @@ async function handleSettings() {
         name: "outputDir",
         message: chalk.cyan("Enter new save location:"),
         default: getConfig().outputDir,
-        validation: (input) => {
+        validate: (input) => {
           if (!fs.existsSync(input)) {
-            return chalk.red(`path does not exits: ${input}`);
+            return `Path does not exist: ${input}`;
           }
           return true;
         },
@@ -161,7 +165,8 @@ async function handleSettings() {
     await handleSettings(); // go back to settings after saving
   }
 }
-// ── HANDLE DOWNLOAD ───────────────────────────────────────
+
+// ── HANDLE DOWNLOAD per txt───────────────────────────────────────
 // asks user for song name then calls the real download function
 async function handleDownload() {
   const { songName } = await inquirer.prompt([
@@ -177,6 +182,61 @@ async function handleDownload() {
   await downloadSong(songName);
 
   // go back to main menu after download
+  await mainMenu();
+}
+
+//--handle playlist download----------------------------------------
+async function handlePlaylist() {
+  const { method } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "method",
+      message: chalk.cyan("How do you want to download?"),
+      choices: [
+        { name: "📝  Paste a song list", value: "list" },
+        { name: "🔗  YouTube playlist URL", value: "url" },
+        { name: "⬅️   Back", value: "back" },
+      ],
+    },
+  ]);
+
+  if (method === "back") await mainMenu();
+  if (method === "list") await handleList();
+  if (method === "url") await handleYoutubePlaylist();
+}
+
+//--handle song list----------------------------------------
+// user pastes comma or newline separated song names
+async function handleList() {
+  const { input } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "input",
+      message: chalk.cyan("Paste songs (comma or newline separated):"),
+      validate: (i) => i.length > 0 || "Please enter at least one song",
+    },
+  ]);
+
+  // downloadList splits and downloads one by one
+  await downloadList(input);
+  await mainMenu();
+}
+
+//--handle youtube playlist---------------------------------
+// user pastes a youtube playlist URL and we download all songs
+async function handleYoutubePlaylist() {
+  const { url } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "url",
+      message: chalk.cyan("Paste YouTube playlist URL:"),
+      validate: (i) =>
+        i.includes("youtube.com") || "Please enter a valid YouTube URL",
+    },
+  ]);
+
+  // downloadYoutubePlaylist handles the rest
+  await downloadYoutubePlaylist(url);
   await mainMenu();
 }
 
