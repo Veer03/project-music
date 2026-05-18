@@ -1,6 +1,6 @@
 {
   "name": "audiofy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Download quality audio/music from YouTube straight from your terminal",
   "type": "module",
   "bin": {
