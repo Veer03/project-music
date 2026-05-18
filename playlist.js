@@ -4,10 +4,11 @@ import chalk from "chalk";
 import { spawn, execSync } from "child_process";
 import ffmpegPath from "ffmpeg-static";
 import ora from "ora";
+import { ytDlpPath } from "./setup.js"; // always use the right path
 
 // ── SHARED UI ─────────────────────────────────────────────
 // this runs the same UI for both list and yt playlist
-// no bar — just spinner per song + summary at end
+// spinner per song + summary at end — no bar to avoid conflicts
 async function downloadWithUI(songs, downloadFn) {
   const total = songs.length;
   let failed = [];
@@ -63,7 +64,7 @@ export async function downloadYoutubePlaylist(url) {
 
   // get all song titles from playlist first before downloading
   const titles = execSync(
-    `".\\yt-dlp.exe" --flat-playlist --print title --js-runtimes node "${url}"`,
+    `"${ytDlpPath}" --flat-playlist --print title --js-runtimes node "${url}"`,
     { encoding: "utf8" },
   )
     .trim()
@@ -81,7 +82,8 @@ export async function downloadYoutubePlaylist(url) {
     color: "magenta",
   }).start();
 
-  const dl = spawn(".\\yt-dlp.exe", [
+  const dl = spawn(ytDlpPath, [
+    // use ytDlpPath from setup.js
     url,
     "--js-runtimes",
     "node",
@@ -99,7 +101,7 @@ export async function downloadYoutubePlaylist(url) {
   dl.stdout.on("data", (data) => {
     const line = data.toString();
 
-    // new song starting — update spinner text
+    // update spinner when new song starts
     if (line.includes("[download] Downloading item")) {
       const match = line.match(/item (\d+) of (\d+)/);
       if (match) {

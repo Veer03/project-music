@@ -23,5 +23,4 @@ audiofy
 
 ## Notes
 
-- yt-dlp downloads automatically on first run
-- Windows only for now (Mac/Linux coming soon)
+- yt-dlp downloads automatically on first runn.
