@@ -1,44 +1,4 @@
-// const chalk = require("chalk");
-// const figlet = require("figlet");
-
-// let x = "Welcome to";
-
-// console.log(chalk.hex("#DEADED").bold.dim("Bold gray!"));
-// figlet(x, "Slant", (err, txt) => {
-//   let z = console.log(chalk.green.bold(txt));
-// });
-
-// for (let i = 0; i < 3; i++) {
-//   setTimeout(() => {
-//     figlet(" . ", "Big", (err, txt) => {
-//       console.log(chalk.red.bold(txt));
-//     });
-//   }, 1000);
-// }
-// let y = chalk.yellow(figlet.fontsSync("Hello World!"));
-// setTimeout(() => {
-//   figlet(" misiccc !", "Larry 3D", (err, txt) => {
-//     console.log(chalk.blue.bold(txt));
-//   });
-// }, 1000);
-
-// // const fonts = [
-// //   "Slant",..........
-// //   "Big",
-// //   "Block",
-// //   "Banner",
-// //   "Digital",
-// //   "Doom",
-// //   "Epic",
-// //   "Larry 3D",....
-// // ];
-
-// // fonts.forEach((font) => {
-// //   console.log(`\n--- ${font} ---`);
-// //   console.log(figlet.textSync("Music", { font }));
-// // });
-
-// importing all the libraries we need
+#!/usr/bin/env node
 import fs from "fs";
 import chalk from "chalk";
 import figlet from "figlet";
