@@ -1,10 +1,10 @@
 {
   "name": "audiofy",
   "version": "1.0.0",
-  "description": "Download quality music/audio from YouTube straight from your terminal",
+  "description": "Download quality audio/music from YouTube straight from your terminal",
   "type": "module",
   "bin": {
-    "audiofy": "./index.js"
+    "audiofy": "index.js"
   },
   "dependencies": {
     "boxen": "^8.0.1",
