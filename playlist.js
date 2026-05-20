@@ -91,7 +91,7 @@ export async function downloadYoutubePlaylist(url) {
     "--audio-format",
     "mp3",
     "--audio-quality",
-    "0",
+    getConfig().quality,
     "-o",
     `${outputDir}/%(title)s.mp3`,
     "--ffmpeg-location",

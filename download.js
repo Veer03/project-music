@@ -40,7 +40,7 @@ export async function downloadSong(song, silent = false) {
       "--audio-format",
       "mp3",
       "--audio-quality",
-      "0",
+      getConfig().quality,
       "-o",
       `${outputDir}/%(title)s.mp3`,
       "--no-playlist",

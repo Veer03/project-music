@@ -3,3 +3,4 @@ package-lock.json
 yt-dlp.exe
 config.json
 music/
+*.mp4

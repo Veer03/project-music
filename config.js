@@ -3,6 +3,7 @@ import fs from "fs";
 const CONFIG_FILE = "config.json";
 const DEFAULT_CONFIG = {
   outputDir: "./music",
+  quality: "0",
 };
 
 //IT IS JUST...OBV.

@@ -12,7 +12,15 @@ import os from "os";
 // save yt-dlp in user home directory — always has write permissions
 const homeDir = os.homedir();
 const ytDlpDir = path.join(homeDir, ".audiofy");
-export const ytDlpPath = path.join(ytDlpDir, "yt-dlp.exe");
+
+// detect OS — win32 = all windows (32 and 64 bit), anything else = mac/linux
+const isWindows = os.platform() === "win32";
+const ytDlpFile = isWindows ? "yt-dlp.exe" : "yt-dlp";
+const ytDlpUrl = isWindows
+  ? "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe"
+  : "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp";
+
+export const ytDlpPath = path.join(ytDlpDir, ytDlpFile);
 
 export async function ensureYtDlp() {
   // check if already exists AND is not 0MB (corrupt)
@@ -27,8 +35,7 @@ export async function ensureYtDlp() {
 
   console.log("⬇️  Downloading yt-dlp (first time only)...");
 
-  const url =
-    "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
+  const url = ytDlpUrl;
 
   // download with redirect following — github always redirects before the real file
   await new Promise((resolve, reject) => {

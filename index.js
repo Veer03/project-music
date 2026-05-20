@@ -12,17 +12,14 @@ await ensureYtDlp();
 
 // ── LOGO ──────────────────────────────────────────────────
 
-// split "Welcome to" into individual rows so we can animate dots onto it
 const welcomeLines = figlet
   .textSync("Welcome to", { font: "Slant" })
   .split("\n");
 
-// split a single dot into rows too so we can stitch it horizontally
 const dotLines = figlet.textSync(" .", { font: "Slant" }).split("\n");
 
 console.log(chalk.blue.bold(welcomeLines.join("\n")));
 
-// keep track of current text on screen so we can redraw it
 let currentLines = [...welcomeLines];
 
 for (let i = 0; i < 3; i++) {
@@ -45,7 +42,7 @@ const logo = figlet.textSync("  Audiofy  !", { font: "Larry 3D" });
 await new Promise((resolve) => setTimeout(resolve, 500)); // small delay for effect
 console.log(chalk.magenta.bold(logo));
 
-// ── TAGLINE ───────────────────────────────────────────────
+// ── TAGLINE
 const tagline = boxen(
   chalk.white("  🎵  Your Audio. Your terminal. Your rules."),
   {
@@ -57,13 +54,13 @@ const tagline = boxen(
 );
 console.log(tagline);
 
-// ── MAIN MENU ─────────────────────────────────────────────
+// ── MAIN MENU
 // this function shows the main menu and handles what user picks
 async function mainMenu() {
   const { action } = await inquirer.prompt([
     {
-      type: "list", // arrow key selectable list
-      name: "action", // variable name to store answer
+      type: "list",
+      name: "action",
       message: chalk.cyan("What do you want to do?"),
       choices: [
         { name: "🎵  Download a song", value: "song" },
@@ -94,6 +91,7 @@ async function handleSettings() {
       message: chalk.cyan("Settings:"),
       choices: [
         { name: "📁  Change save location", value: "location" },
+        { name: "🎵  Change audio quality", value: "quality" },
         { name: "⬅️   Back", value: "back" },
       ],
     },
@@ -120,9 +118,27 @@ async function handleSettings() {
       },
     ]);
 
-    saveConfig({ outputDir });
-    console.log(chalk.green(`\n  ✅ Saved to: ${outputDir}\n`));
+    saveConfig({ ...getConfig(), outputDir }); // keeps quality    console.log(chalk.green(`\n  ✅ Saved to: ${outputDir}\n`));
     await handleSettings(); // go back to settings after saving
+  }
+
+  if (option === "quality") {
+    const { quality } = await inquirer.prompt([
+      {
+        type: "list",
+        name: "quality",
+        message: chalk.cyan("Select audio quality:"),
+        choices: [
+          { name: "🔥  320k (Best)", value: "0" },
+          { name: "⚡  192k (Good)", value: "5" },
+          { name: "💾  128k (Small)", value: "9" },
+        ],
+      },
+    ]);
+
+    saveConfig({ ...getConfig(), quality });
+    console.log(chalk.green("\n  ✅ Quality updated!\n"));
+    await handleSettings();
   }
 }
 
