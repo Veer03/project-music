@@ -34,7 +34,3 @@ audiofy
 - First run downloads yt-dlp automatically
 - Songs saved to ./music by default
 - Change save location in Settings
-
-## License
-
-MIT
