@@ -4,3 +4,6 @@ yt-dlp.exe
 config.json
 music/
 *.mp4
+.env
+.env.local
+audiofy-api/node_modules/

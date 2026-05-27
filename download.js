@@ -1,8 +1,11 @@
 import { spawn } from "child_process";
+import { exec } from "child_process";
 import ffmpegPath from "ffmpeg-static";
 import cliProgress from "cli-progress";
 import chalk from "chalk";
 import ora from "ora";
+import os from "os";
+import inquirer from "inquirer";
 import { getConfig } from "./config.js";
 import { ytDlpPath } from "./setup.js"; // always use the right path
 
@@ -26,13 +29,13 @@ export async function downloadSong(song, silent = false) {
       hideCursor: true,
     });
 
-    // get save location from config (default ./music)
-    const { outputDir } = getConfig();
+    // get save location and quality from config
+    const { outputDir, quality } = getConfig();
 
     let barStarted = false;
+    let songPath = null; // will capture actual saved file path
 
     const dl = spawn(ytDlpPath, [
-      // use ytDlpPath from setup.js
       `ytsearch1:${song}`,
       "--js-runtimes",
       "node",
@@ -40,7 +43,7 @@ export async function downloadSong(song, silent = false) {
       "--audio-format",
       "mp3",
       "--audio-quality",
-      getConfig().quality,
+      quality,
       "-o",
       `${outputDir}/%(title)s.mp3`,
       "--no-playlist",
@@ -50,6 +53,11 @@ export async function downloadSong(song, silent = false) {
 
     dl.stdout.on("data", (data) => {
       const line = data.toString();
+
+      // capture the actual saved file path from yt-dlp output
+      if (line.includes("[ExtractAudio] Destination:")) {
+        songPath = line.split("Destination:")[1].trim();
+      }
 
       // switch from spinner to progress bar on first download line — only if not silent
       if (
@@ -69,7 +77,7 @@ export async function downloadSong(song, silent = false) {
       }
     });
 
-    dl.on("close", (code) => {
+    dl.on("close", async (code) => {
       if (barStarted) {
         bar.update(100);
         bar.stop();
@@ -78,8 +86,33 @@ export async function downloadSong(song, silent = false) {
       }
 
       if (code === 0) {
-        if (!silent)
+        if (!silent) {
           console.log(chalk.green(`\n  ✅ Saved to music folder!\n`));
+
+          // ask user if they want to play the song — only for single downloads
+          const { play } = await inquirer.prompt([
+            {
+              type: "confirm",
+              name: "play",
+              message: chalk.cyan("  Play now?"),
+              default: false,
+            },
+          ]);
+
+          if (play && songPath) {
+            const isWindows = os.platform() === "win32";
+            const isMac = os.platform() === "darwin";
+            // open with default media player based on OS
+            const cmd = isWindows
+              ? `start "" "${songPath}"`
+              : isMac
+                ? `open "${songPath}"`
+                : `xdg-open "${songPath}"`; // linux
+
+            exec(cmd);
+            console.log(chalk.magenta(`\n  🎵 Playing: ${songPath}\n`));
+          }
+        }
         resolve();
       } else {
         if (!silent) console.log(chalk.red("\n  ❌ Failed!\n"));
